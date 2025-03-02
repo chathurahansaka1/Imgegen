@@ -459,6 +459,38 @@
             margin-right: 6px;
         }
 
+        /* Direct Download Button */
+        .direct-download-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(45deg, #33a1ff, #3358ff);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 15px;
+            padding: 12px 25px;
+            box-shadow: 0 5px 15px rgba(51, 94, 255, 0.3);
+            width: 100%;
+        }
+
+        .direct-download-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(51, 94, 255, 0.4);
+        }
+
+        .direct-download-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .direct-download-btn i {
+            margin-right: 8px;
+        }
+
         /* Quick Examples */
         .examples-section {
             margin-top: 25px;
@@ -620,7 +652,7 @@
         // Create background animation elements
         document.addEventListener('DOMContentLoaded', function() {
             const bgAnimation = document.querySelector('.bg-animation');
-            
+
             // Create moving lines
             for (let i = 0; i < 10; i++) {
                 const line = document.createElement('div');
@@ -630,7 +662,7 @@
                 line.style.opacity = Math.random() * 0.5;
                 bgAnimation.appendChild(line);
             }
-            
+
             // Create floating dots
             for (let i = 0; i < 20; i++) {
                 const dot = document.createElement('div');
@@ -677,16 +709,22 @@
                 const data = await response.json();
 
                 if (data.status === "success") {
+                    // Store the image URL in a variable for easy access
+                    const imageUrl = data.image_link;
+                    
                     resultDiv.innerHTML = `
                         <div class="image-result">
-                            <img src="${data.image_link}" alt="Generated Image">
+                            <img src="${imageUrl}" alt="Generated Image">
                             <div class="image-overlay">
                                 <div class="prompt-text">${prompt}</div>
-                                <button class="image-action-btn" onclick="downloadImage('${data.image_link}')">
+                                <button class="image-action-btn" onclick="downloadImage('${imageUrl}')">
                                     <i class="fas fa-download"></i>Download
                                 </button>
                             </div>
                         </div>
+                        <button class="direct-download-btn" onclick="downloadImage('${imageUrl}')">
+                            <i class="fas fa-download"></i>Download Image
+                        </button>
                         <div class="success-message">
                             <i class="fas fa-check-circle"></i> Image generated successfully
                         </div>
@@ -731,4 +769,4 @@
         }
     </script>
 </body>
-  </html>
+</html>
