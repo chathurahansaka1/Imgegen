@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Image Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+        }
+
+        /* Dark Theme Background with Running Animation */
+        body {
+            background-color: #0a0a0f;
+            color: #e0e0e0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Running Animation Background Elements */
+        .bg-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .bg-line {
+            position: absolute;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(51, 94, 255, 0.2), transparent);
+            animation: bgLineAnimation 8s linear infinite;
+        }
+
+        @keyframes bgLineAnimation {
+            0% {
+                transform: translateY(-100vh);
+            }
+            100% {
+                transform: translateY(100vh);
+            }
+        }
+
+        .bg-dot {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background-color: rgba(51, 94, 255, 0.4);
+            border-radius: 50%;
+            animation: bgDotAnimation 15s linear infinite;
+        }
+
+        @keyframes bgDotAnimation {
+            0% {
+                transform: translate(-100vw, -100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translate(100vw, 100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Main Container */
+        .container {
+            background-color: rgba(18, 18, 23, 0.85);
+            border: 1px solid rgba(66, 66, 78, 0.4);
+            border-radius: 16px;
+            padding: 35px;
+            max-width: 680px;
+            width: 100%;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Glow Effect Corners */
+        .container::before,
+        .container::after {
+            content: '';
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            opacity: 0.5;
+        }
+
+        .container::before {
+            background: #335eff;
+            top: -50px;
+            left: -50px;
+            animation: glowPulse 8s alternate infinite;
+        }
+
+        .container::after {
+            background: #5833ff;
+            bottom: -50px;
+            right: -50px;
+            animation: glowPulse 8s alternate-reverse infinite;
+        }
+
+        @keyframes glowPulse {
+            0% {
+                opacity: 0.3;
+                transform: scale(0.8);
+            }
+            100% {
+                opacity: 0.6;
+                transform: scale(1.2);
+            }
+        }
+
+        /* Header With Futuristic Style */
+        .header {
+            margin-bottom: 30px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .logo-container {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .logo {
+            width: 70px;
+            height: 70px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1e1e2f, #335eff);
+            position: relative;
+            box-shadow: 0 0 30px rgba(51, 94, 255, 0.6);
+        }
+
+        .logo::before {
+            content: '';
+            position: absolute;
+            width: 86px;
+            height: 86px;
+            border-radius: 50%;
+            border: 2px solid rgba(51, 94, 255, 0.3);
+            animation: logoRing 8s linear infinite;
+        }
+
+        .logo::after {
+            content: '';
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 1px solid rgba(51, 94, 255, 0.2);
+            animation: logoRing 12s linear infinite reverse;
+        }
+
+        @keyframes logoRing {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .logo i {
+            font-size: 28px;
+            color: #fff;
+            animation: logoIcon 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes logoIcon {
+            0% {
+                text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+                transform: scale(1);
+            }
+            100% {
+                text-shadow: 0 0 20px rgba(255, 255, 255, 1);
+                transform: scale(1.1);
+            }
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #cfd9ff, #ffffff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 10px;
+        }
+
+        /* Input Area */
+        .input-area {
+            position: relative;
+            margin-bottom: 30px;
+            z-index: 1;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 5px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 18px 20px;
+            background-color: rgba(30, 30, 40, 0.6);
+            border: 1px solid rgba(78, 78, 95, 0.4);
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 1.05rem;
+            transition: all 0.3s;
+            outline: none;
+        }
+
+        .input-field:focus {
+            border-color: #335eff;
+            box-shadow: 0 0 0 3px rgba(51, 94, 255, 0.2);
+            background-color: rgba(30, 30, 40, 0.8);
+        }
+
+        .input-field::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Button Styles */
+        .button-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .generate-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px 32px;
+            background: linear-gradient(45deg, #335eff, #5833ff);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(51, 94, 255, 0.4);
+        }
+
+        .generate-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .generate-btn:hover::before {
+            left: 100%;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(51, 94, 255, 0.5);
+        }
+
+        .generate-btn:active {
+            transform: translateY(-2px);
+        }
+
+        .generate-btn i {
+            margin-right: 10px;
+        }
+
+        /* Results Area */
+        .result-container {
+            position: relative;
+            min-height: 100px;
+        }
+
+        /* Loading Animation */
+        .cyber-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            margin: 40px 0;
+        }
+
+        .loading-spinner {
+            width: 80px;
+            height: 80px;
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .spinner-inner {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            border-top-color: #335eff;
+            animation: spin 1.5s linear infinite;
+        }
+
+        .spinner-inner:nth-child(2) {
+            width: 70%;
+            height: 70%;
+            top: 15%;
+            left: 15%;
+            border-top-color: #5833ff;
+            animation: spin 2s linear infinite reverse;
+        }
+
+        .spinner-inner:nth-child(3) {
+            width: 40%;
+            height: 40%;
+            top: 30%;
+            left: 30%;
+            border-top-color: #8333ff;
+            animation: spin 2.5s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .processing-text {
+            color: #cfd9ff;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            position: relative;
+            padding-right: 15px;
+        }
+
+        .processing-text::after {
+            content: '';
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background-color: #335eff;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+
+        /* Generated Image Container */
+        .image-result {
+            margin-top: 10px;
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transform: translateY(0);
+            transition: transform 0.3s ease;
+            border: 1px solid rgba(78, 78, 95, 0.4);
+        }
+
+        .image-result:hover {
+            transform: translateY(-5px);
+        }
+
+        .image-result img {
+            width: 100%;
+            display: block;
+            transition: transform 0.5s;
+        }
+
+        .image-result:hover img {
+            transform: scale(1.03);
+        }
+
+        .image-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .image-result:hover .image-overlay {
+            opacity: 1;
+        }
+
+        .image-action-btn {
+            background: rgba(51, 94, 255, 0.3);
+            border: 1px solid rgba(51, 94, 255, 0.5);
+            color: white;
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+        }
+
+        .image-action-btn:hover {
+            background: rgba(51, 94, 255, 0.6);
+        }
+
+        .image-action-btn i {
+            margin-right: 6px;
+        }
+
+        /* Quick Examples */
+        .examples-section {
+            margin-top: 25px;
+        }
+
+        .examples-title {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .examples-title i {
+            margin-right: 8px;
+            color: #335eff;
+        }
+
+        .examples-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .example-chip {
+            background-color: rgba(30, 30, 40, 0.6);
+            border: 1px solid rgba(78, 78, 95, 0.4);
+            border-radius: 8px;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .example-chip:hover {
+            background-color: rgba(51, 94, 255, 0.2);
+            border-color: rgba(51, 94, 255, 0.5);
+            transform: translateY(-3px);
+        }
+
+        /* Error Message */
+        .error-message {
+            background-color: rgba(255, 69, 58, 0.1);
+            border-left: 3px solid #ff453a;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 6px;
+            color: #ffb0ad;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .error-message i {
+            margin-right: 10px;
+            color: #ff453a;
+            font-size: 1.1rem;
+            margin-top: 2px;
+        }
+
+        /* Success Message */
+        .success-message {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #90ee90;
+            margin-top: 15px;
+            font-size: 0.95rem;
+        }
+
+        .success-message i {
+            margin-right: 8px;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .footer a {
+            color: #335eff;
+            text-decoration: none;
+        }
+
+        /* Media Queries */
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px 20px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .examples-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .examples-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Animation Elements -->
+    <div class="bg-animation">
+        <!-- Dynamic lines will be added here via JS -->
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo-container">
+                <div class="logo">
+                    <i class="fas fa-wand-magic-sparkles"></i>
+                </div>
+            </div>
+            <h1>Neon Vision</h1>
+            <div class="subtitle">Advanced AI Image Generator</div>
+        </div>
+
+        <div class="input-area">
+            <div class="input-group">
+                <input type="text" class="input-field" id="prompt" placeholder="Enter your creative vision here...">
+            </div>
+        </div>
+
+        <div class="button-container">
+            <button class="generate-btn" onclick="generateImage()">
+                <i class="fas fa-bolt"></i>Generate Image
+            </button>
+        </div>
+
+        <div id="result" class="result-container"></div>
+
+        <div class="examples-section">
+            <div class="examples-title">
+                <i class="fas fa-lightbulb"></i> Try these prompts:
+            </div>
+            <div class="examples-grid">
+                <div class="example-chip" onclick="useExample(this)">Cyberpunk cityscape</div>
+                <div class="example-chip" onclick="useExample(this)">Neon samurai warrior</div>
+                <div class="example-chip" onclick="useExample(this)">Digital dreamscape</div>
+            </div>
+        </div>
+
+        <div class="footer">
+            Powered by cutting-edge AI technology • <a href="#">Terms</a> • <a href="#">Privacy</a>
+        </div>
+    </div>
+
+    <script>
+        // Create background animation elements
+        document.addEventListener('DOMContentLoaded', function() {
+            const bgAnimation = document.querySelector('.bg-animation');
+            
+            // Create moving lines
+            for (let i = 0; i < 10; i++) {
+                const line = document.createElement('div');
+                line.classList.add('bg-line');
+                line.style.top = Math.random() * 100 + 'vh';
+                line.style.animationDelay = Math.random() * 8 + 's';
+                line.style.opacity = Math.random() * 0.5;
+                bgAnimation.appendChild(line);
+            }
+            
+            // Create floating dots
+            for (let i = 0; i < 20; i++) {
+                const dot = document.createElement('div');
+                dot.classList.add('bg-dot');
+                dot.style.top = Math.random() * 100 + 'vh';
+                dot.style.left = Math.random() * 100 + 'vw';
+                dot.style.animationDelay = Math.random() * 15 + 's';
+                dot.style.opacity = Math.random() * 0.5;
+                bgAnimation.appendChild(dot);
+            }
+        });
+
+        // Function to generate the image
+        async function generateImage() {
+            const prompt = document.getElementById("prompt").value.trim();
+            const resultDiv = document.getElementById("result");
+
+            if (!prompt) {
+                resultDiv.innerHTML = `
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <div>
+                            <strong>Error:</strong> Please enter a prompt to generate an image.
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            resultDiv.innerHTML = `
+                <div class="cyber-loading">
+                    <div class="loading-spinner">
+                        <div class="spinner-inner"></div>
+                        <div class="spinner-inner"></div>
+                        <div class="spinner-inner"></div>
+                    </div>
+                    <div class="processing-text">Processing your request</div>
+                </div>
+            `;
+
+            try {
+                const url = `https://1yjs1yldj7.execute-api.us-east-1.amazonaws.com/default/ai_image?prompt=${encodeURIComponent(prompt)}`;
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.status === "success") {
+                    resultDiv.innerHTML = `
+                        <div class="image-result">
+                            <img src="${data.image_link}" alt="Generated Image">
+                            <div class="image-overlay">
+                                <div class="prompt-text">${prompt}</div>
+                                <button class="image-action-btn" onclick="downloadImage('${data.image_link}')">
+                                    <i class="fas fa-download"></i>Download
+                                </button>
+                            </div>
+                        </div>
+                        <div class="success-message">
+                            <i class="fas fa-check-circle"></i> Image generated successfully
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error-message">
+                            <i class="fas fa-times-circle"></i>
+                            <div>
+                                <strong>Generation Failed:</strong> Unable to create image. Please try a different prompt or try again later.
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error("Error fetching image:", error);
+                resultDiv.innerHTML = `
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>
+                            <strong>System Error:</strong> Something went wrong with our servers. Please try again later.
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Function to download the generated image
+        function downloadImage(imageUrl) {
+            const a = document.createElement('a');
+            a.href = imageUrl;
+            a.download = 'neon-vision-ai-image.png';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        // Function to use example prompts
+        function useExample(element) {
+            document.getElementById("prompt").value = element.textContent;
+            document.getElementById("prompt").focus();
+        }
+    </script>
+</body>
+  </html>
