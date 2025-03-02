@@ -751,16 +751,31 @@
                 `;
             }
         }
-
-        // Function to download the generated image
-        function downloadImage(imageUrl) {
+// Function to download the generated image
+function downloadImage(imageUrl) {
+    fetch(imageUrl)
+        .then(response => response.blob())
+        .then(blob => {
+            // Create blob link to download
+            const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = imageUrl;
-            a.download = 'neon-vision-ai-image.png';
+            a.href = url;
+            a.download = 'ai-generated-image.png';
+            
+            // Append to html document
             document.body.appendChild(a);
+            
+            // Trigger download
             a.click();
+            
+            // Clean up
+            window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
-        }
+        })
+        .catch(error => {
+            console.error('Error downloading image:', error);
+            alert('Failed to download image. Please try again.');
+        });
 
         // Function to use example prompts
         function useExample(element) {
