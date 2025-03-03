@@ -704,14 +704,14 @@
             `;
 
             try {
-                const url = `https://1yjs1yldj7.execute-api.us-east-1.amazonaws.com/default/ai_image?prompt=${encodeURIComponent(prompt)}`;
-                const response = await fetch(url);
-                const data = await response.json();
-
-                if (data.status === "success") {
-                    // Store the image URL in a variable for easy access
-                    const imageUrl = data.image_link;
-                    
+                // Using the new API endpoint
+                const url = `https://dev-pycodz-blackbox.pantheonsite.io/DEvZ44d/imger.php?img=${encodeURIComponent(prompt)}`;
+                
+                // Create image URL directly using the API
+                const imageUrl = url;
+                
+                // Simulate a delay to show loading animation (since we're directly using the URL)
+                setTimeout(() => {
                     resultDiv.innerHTML = `
                         <div class="image-result">
                             <img src="${imageUrl}" alt="Generated Image">
@@ -729,16 +729,7 @@
                             <i class="fas fa-check-circle"></i> Image generated successfully
                         </div>
                     `;
-                } else {
-                    resultDiv.innerHTML = `
-                        <div class="error-message">
-                            <i class="fas fa-times-circle"></i>
-                            <div>
-                                <strong>Generation Failed:</strong> Unable to create image. Please try a different prompt or try again later.
-                            </div>
-                        </div>
-                    `;
-                }
+                }, 1500);
             } catch (error) {
                 console.error("Error fetching image:", error);
                 resultDiv.innerHTML = `
@@ -756,7 +747,7 @@
         function downloadImage(imageUrl) {
             const a = document.createElement('a');
             a.href = imageUrl;
-            a.download = 'neon-vision-ai-image.png';
+            a.download = 'ch-ai-image.png';
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
