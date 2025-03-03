@@ -614,13 +614,13 @@
                     <i class="fas fa-wand-magic-sparkles"></i>
                 </div>
             </div>
-            <h1>CH Image Generator</h1>
+            <h1>CH image generator</h1>
             <div class="subtitle">Advanced AI Image Generator</div>
         </div>
 
         <div class="input-area">
             <div class="input-group">
-                                <input type="text" class="input-field" id="prompt" placeholder="Enter your creative vision here...">
+                <input type="text" class="input-field" id="prompt" placeholder="Enter your creative vision here...">
             </div>
         </div>
 
@@ -704,61 +704,53 @@
             `;
 
             try {
-                // Stable Diffusion API endpoint
-                const apiUrl = `https://stabledifffusion.com/imagen/${encodeURIComponent(prompt)}?width=1024&height=1024`;
+                // Using the new URL format
+                const imageUrl = `https://stabledifffusion.com/imagen/${encodeURIComponent(prompt)}?width=1024&height=1024`;
                 
-                // Fetch the image
-                const response = await fetch(apiUrl);
-                
-                if (!response.ok) {
-                    throw new Error(`API Error: ${response.status} ${response.statusText}`);
-                }
-
-                // Directly use the URL as image source
-                const imageUrl = apiUrl;
-
-                resultDiv.innerHTML = `
-                    <div class="image-result">
-                        <img src="${imageUrl}" alt="Generated Image">
-                        <div class="image-overlay">
-                            <div class="prompt-text">${prompt}</div>
-                            <button class="image-action-btn" onclick="downloadImage('${imageUrl}')">
-                                <i class="fas fa-download"></i>Download
-                            </button>
+                // Simulate a delay to show loading animation
+                setTimeout(() => {
+                    resultDiv.innerHTML = `
+                        <div class="image-result">
+                            <img src="${imageUrl}" alt="Generated Image">
+                            <div class="image-overlay">
+                                <div class="prompt-text">${prompt}</div>
+                                <button class="image-action-btn" onclick="downloadImage('${imageUrl}')">
+                                    <i class="fas fa-download"></i>Download
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                    <button class="direct-download-btn" onclick="downloadImage('${imageUrl}')">
-                        <i class="fas fa-download"></i>Download Image
-                    </button>
-                    <div class="success-message">
-                        <i class="fas fa-check-circle"></i> Image generated successfully
-                    </div>
-                `;
-
+                        <button class="direct-download-btn" onclick="downloadImage('${imageUrl}')">
+                            <i class="fas fa-download"></i>Download Image
+                        </button>
+                        <div class="success-message">
+                            <i class="fas fa-check-circle"></i> Image generated successfully
+                        </div>
+                    `;
+                }, 1500);
             } catch (error) {
-                console.error("Error:", error);
+                console.error("Error fetching image:", error);
                 resultDiv.innerHTML = `
                     <div class="error-message">
                         <i class="fas fa-exclamation-triangle"></i>
                         <div>
-                            <strong>Error:</strong> ${error.message || "Failed to generate image. Please try again."}
+                            <strong>System Error:</strong> Something went wrong with our servers. Please try again later.
                         </div>
                     </div>
                 `;
             }
         }
 
-        // Download image function
+        // Function to download the generated image
         function downloadImage(imageUrl) {
-            const link = document.createElement('a');
-            link.href = imageUrl;
-            link.download = 'generated-image.png';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            const a = document.createElement('a');
+            a.href = imageUrl;
+            a.download = 'ch-ai-image.png';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
         }
 
-        // Example prompt click handler
+        // Function to use example prompts
         function useExample(element) {
             document.getElementById("prompt").value = element.textContent;
             document.getElementById("prompt").focus();
